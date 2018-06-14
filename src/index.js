@@ -29,7 +29,8 @@ class Game extends React.Component {
       indices: indices,
       palette: palette,
       colors: initial_colours,
-      centers: centers
+      centers: centers,
+      interval: props.interval
     };
   }
 
@@ -40,7 +41,7 @@ class Game extends React.Component {
   }
 
   componentDidMount() {
-    var interval = setInterval(()=> this.update(), 1500);
+    var interval = setInterval(()=> this.update(), this.state.interval);
     this.setState({interval: interval});
   }
 
@@ -97,7 +98,7 @@ class Game extends React.Component {
       row.map((value,j)=>
         this.nextGeneration(value, this.numberNeighbours(i,j))));
     var liveIndices = this.state.indices.filter(([i,j]) => newGrid[i][j]===1);
-    var ans = kmeans(liveIndices, 8, {distance:manhattan, initialization: this.state.centers, tolerance: 1e-2});
+    var ans = kmeans(liveIndices, this.state.palette.length, {distance:manhattan, initialization: this.state.centers, tolerance: 1e-2});
     var centers = ans.centroids.map((x)=>x.centroid);
     var newColors = newGrid.map((row)=>row.map((x)=>"#E7E7E7"));
     ans.clusters.forEach((value,index)=> {newColors[liveIndices[index][0]][liveIndices[index][1]] = this.state.palette[value]});
@@ -132,7 +133,7 @@ function makeRandomGrid(rows, columns, fraction){
 
 //const cartesian = (a, b) => [].concat(...a.map(d => b.map(e => [].concat(d, e))));
 
-ReactDOM.render(<Game rows={50} columns={50} fraction={0.1} k={8}/>, document.getElementById('root'));
+ReactDOM.render(<Game rows={50} columns={50} fraction={0.1} k={9} interval={500}/>, document.getElementById('root'));
 registerServiceWorker();
 
 function manhattan([a,b],[c,d]) {
