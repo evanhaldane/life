@@ -16,14 +16,6 @@ body {
 	display: inline-block;
 }
 
-.square[value="0"] {
-	background-color: #DDDDDD
-}
-
-.square[value="1"] {
-	background-color: #000000
-}
-
 .row {
 	display: flex;
 	margin: 0;
