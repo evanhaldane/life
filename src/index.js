@@ -17,16 +17,19 @@ class Game extends React.Component {
     }
     const initial_grid = makeRandomGrid(props.rows,props.columns,props.fraction);
     var palette = palettes[props.k];
+    
     var liveIndices = indices.filter(([i,j]) => initial_grid[i][j]===1);
-    var ans = kmeans(liveIndices, props.k, {distance:manhattan});
+    var ans = kmeans(liveIndices, props.k, {distance:manhattan, tolerance: 1e-2});
+    var centers = ans.centroids.map((x)=>x.centroid);
     var initial_colours = initial_grid.map((row)=>row.map((x)=>"#E7E7E7"));
-    ans.clusters.forEach((value,index)=> {initial_colours[liveIndices[index][0]][liveIndices[index][1]] = palette[index]});
+    ans.clusters.forEach((value,index)=> {initial_colours[liveIndices[index][0]][liveIndices[index][1]] = palette[value]});
+
     this.state = {
       grid: initial_grid,
       indices: indices,
       palette: palette,
       colors: initial_colours,
-      centers: ans.centroids.map((x)=>x.centroid)
+      centers: centers
     };
   }
 
@@ -37,7 +40,7 @@ class Game extends React.Component {
   }
 
   componentDidMount() {
-    var interval = setInterval(()=> this.update(), 10);
+    var interval = setInterval(()=> this.update(), 1500);
     this.setState({interval: interval});
   }
 
@@ -96,7 +99,6 @@ class Game extends React.Component {
     var liveIndices = this.state.indices.filter(([i,j]) => newGrid[i][j]===1);
     var ans = kmeans(liveIndices, 8, {distance:manhattan, initialization: this.state.centers, tolerance: 1e-2});
     var centers = ans.centroids.map((x)=>x.centroid);
-    console.log(centers);
     var newColors = newGrid.map((row)=>row.map((x)=>"#E7E7E7"));
     ans.clusters.forEach((value,index)=> {newColors[liveIndices[index][0]][liveIndices[index][1]] = this.state.palette[value]});
     this.setState({grid: newGrid,
