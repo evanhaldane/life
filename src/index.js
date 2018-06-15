@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import registerServiceWorker from './registerServiceWorker';
 import { skmeans } from './main';
 
 var palettes = {3: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)'], 4: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)'], 5: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)'], 6: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)'], 7: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)'], 8: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)', 'rgb(255,127,0)'], 9: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)', 'rgb(255,127,0)', 'rgb(202,178,214)'], 10: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)', 'rgb(255,127,0)', 'rgb(202,178,214)', 'rgb(106,61,154)'], 11: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)', 'rgb(255,127,0)', 'rgb(202,178,214)', 'rgb(106,61,154)', 'rgb(255,255,153)'], 12: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)', 'rgb(255,127,0)', 'rgb(202,178,214)', 'rgb(106,61,154)', 'rgb(255,255,153)', 'rgb(177,89,40)']}
@@ -99,9 +98,6 @@ class Game extends React.Component {
       row.map((value,j)=>
         this.nextGeneration(value, this.numberNeighbours(i,j))));
     var liveIndices = this.state.indices.filter(([i,j]) => newGrid[i][j]===1);
-    console.log(liveIndices);
-    console.log(this.state.palette.length);
-    console.log(this.state.centers);
     var ans = skmeans(liveIndices, this.state.palette.length, this.state.centers, 100);
     var newColors = newGrid.map((row)=>row.map((x)=>"#E7E7E7"));
     ans.idxs.forEach((value,index)=> {newColors[liveIndices[index][0]][liveIndices[index][1]] = this.state.palette[value]});
@@ -113,15 +109,15 @@ class Game extends React.Component {
 }
 
 function Row(props){
-  const items = props.values.map((value,j)=><div style={{backgroundColor: props.colors[j]}} class="square" value={value}></div>)
-  return (<div class="row">{items}</div> 
+  const items = props.values.map((value,j)=><div style={{backgroundColor: props.colors[j]}} className="square" value={value} key={j}></div>)
+  return (<div className="row">{items}</div> 
   );
 }
 
 function Board(props){
-  const rows = props.grid.map((row_values, i) =><Row values={row_values} colors={props.colors[i]}/>);
+  const rows = props.grid.map((row_values, i) =><Row values={row_values} colors={props.colors[i]} key={i}/>);
   return(
-    <div class="board">{rows}</div>
+    <div className="board">{rows}</div>
     );
 }
 
