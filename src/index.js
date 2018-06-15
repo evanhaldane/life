@@ -132,8 +132,3 @@ function makeRandomGrid(rows, columns, fraction){
 //const cartesian = (a, b) => [].concat(...a.map(d => b.map(e => [].concat(d, e))));
 
 ReactDOM.render(<Game rows={50} columns={50} fraction={0.1} k={9} interval={500}/>, document.getElementById('root'));
-//registerServiceWorker();
-
-function manhattan([a,b],[c,d]) {
-  return Math.abs(a-c) + Math.abs(b-d);
-}
