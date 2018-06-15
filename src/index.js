@@ -36,7 +36,11 @@ class Game extends React.Component {
 
   render() {
     return(
+      <div>
+        <p>Conway's <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Game of Life</a> with <a href="https://en.wikipedia.org/wiki/K-means_clustering">k-means clustering</a> at each step.</p>
+
       <Board grid={this.state.grid} colors={this.state.colors}/>
+      </div>
     )
   }
 

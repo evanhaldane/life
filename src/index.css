@@ -15,11 +15,26 @@ body {
 	flex-direction: row;
 }
 
-.board {
-	width: 40%;
-	height: 40vw;
-	margin: auto auto;
-	display: flex;
-	flex-flow: column;
+p {
+	text-align: center;
 }
 
+@media screen and (orientation:landscape){
+	.board {
+		width: 70vh;
+		height: 70vh;
+		margin: auto auto;
+		display: flex;
+		flex-flow: column;
+	}
+}
+
+@media screen and (orientation:portrait){
+	.board {
+		width: 70vw;
+		height: 70vw;
+		margin: auto auto;
+		display: flex;
+		flex-flow: column;
+	}
+}
