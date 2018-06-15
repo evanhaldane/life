@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import registerServiceWorker from './registerServiceWorker';
-import kmeans from 'ml-kmeans';
+import { skmeans } from './main';
 
 var palettes = {3: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)'], 4: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)'], 5: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)'], 6: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)'], 7: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)'], 8: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)', 'rgb(255,127,0)'], 9: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)', 'rgb(255,127,0)', 'rgb(202,178,214)'], 10: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)', 'rgb(255,127,0)', 'rgb(202,178,214)', 'rgb(106,61,154)'], 11: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)', 'rgb(255,127,0)', 'rgb(202,178,214)', 'rgb(106,61,154)', 'rgb(255,255,153)'], 12: ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)', 'rgb(255,127,0)', 'rgb(202,178,214)', 'rgb(106,61,154)', 'rgb(255,255,153)', 'rgb(177,89,40)']}
 
@@ -17,19 +17,17 @@ class Game extends React.Component {
     }
     const initial_grid = makeRandomGrid(props.rows,props.columns,props.fraction);
     var palette = palettes[props.k];
-    
     var liveIndices = indices.filter(([i,j]) => initial_grid[i][j]===1);
-    var ans = kmeans(liveIndices, props.k, {distance:manhattan, tolerance: 1e-2});
-    var centers = ans.centroids.map((x)=>x.centroid);
+    var ans = skmeans(liveIndices, props.k);
     var initial_colours = initial_grid.map((row)=>row.map((x)=>"#E7E7E7"));
-    ans.clusters.forEach((value,index)=> {initial_colours[liveIndices[index][0]][liveIndices[index][1]] = palette[value]});
+    ans.idxs.forEach((value,index)=> {initial_colours[liveIndices[index][0]][liveIndices[index][1]] = palette[value]});
 
     this.state = {
       grid: initial_grid,
       indices: indices,
       palette: palette,
       colors: initial_colours,
-      centers: centers,
+      centers: ans.centroids,
       interval: props.interval
     };
   }
@@ -38,7 +36,6 @@ class Game extends React.Component {
     return(
       <div>
         <p>Conway's <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Game of Life</a> with <a href="https://en.wikipedia.org/wiki/K-means_clustering">k-means clustering</a> at each step.</p>
-
       <Board grid={this.state.grid} colors={this.state.colors}/>
       </div>
     )
@@ -102,13 +99,15 @@ class Game extends React.Component {
       row.map((value,j)=>
         this.nextGeneration(value, this.numberNeighbours(i,j))));
     var liveIndices = this.state.indices.filter(([i,j]) => newGrid[i][j]===1);
-    var ans = kmeans(liveIndices, this.state.palette.length, {distance:manhattan, initialization: this.state.centers, tolerance: 1e-2});
-    var centers = ans.centroids.map((x)=>x.centroid);
+    console.log(liveIndices);
+    console.log(this.state.palette.length);
+    console.log(this.state.centers);
+    var ans = skmeans(liveIndices, this.state.palette.length, this.state.centers, 100);
     var newColors = newGrid.map((row)=>row.map((x)=>"#E7E7E7"));
-    ans.clusters.forEach((value,index)=> {newColors[liveIndices[index][0]][liveIndices[index][1]] = this.state.palette[value]});
+    ans.idxs.forEach((value,index)=> {newColors[liveIndices[index][0]][liveIndices[index][1]] = this.state.palette[value]});
     this.setState({grid: newGrid,
                    colors: newColors,
-                   centers: centers});
+                   centers: ans.centroids});
   }
 
 }
@@ -126,7 +125,6 @@ function Board(props){
     );
 }
 
-
 function makeRandomGrid(rows, columns, fraction){
   var grid = []
   for (var i = 0; i < rows; i++){
@@ -138,7 +136,7 @@ function makeRandomGrid(rows, columns, fraction){
 //const cartesian = (a, b) => [].concat(...a.map(d => b.map(e => [].concat(d, e))));
 
 ReactDOM.render(<Game rows={50} columns={50} fraction={0.1} k={9} interval={500}/>, document.getElementById('root'));
-registerServiceWorker();
+//registerServiceWorker();
 
 function manhattan([a,b],[c,d]) {
   return Math.abs(a-c) + Math.abs(b-d);
